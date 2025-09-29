@@ -20,7 +20,7 @@ class MFDevScraper:
             handler.setFormatter(formatter)
             self.__log.addHandler(handler)
 
-    def request_mfdev(self,method:str='GET',status_code_accepted:int=200, url:str=None, proxies:dict={}, headers:dict={}, cookies:dict={}, timeout:float=20.0, verify:bool=True, impersonate:str='chrome', max_retries:int=3):
+    def request_mfdev(self,method:str='GET',status_code_accepted:int=200, url:str=None, proxies:dict={}, headers:dict={},params:dict={}, cookies:dict={},payload:dict={}, timeout:float=20.0, verify:bool=True, impersonate:str='chrome', max_retries:int=3):
 
         """
         Perform an HTTP request with retry logic using curl_cffi.
@@ -76,10 +76,10 @@ class MFDevScraper:
 
                     case 'get':
                         response = curl_cffi.get(url=url, headers=headers,
-                                            verify=verify, proxies=proxies,cookies=cookies, timeout=timeout, impersonate=impersonate)
+                                            verify=verify, proxies=proxies,cookies=cookies,data=payload, params=params, timeout=timeout, impersonate=impersonate)
                     case 'post':
                         response = curl_cffi.post(url=url, headers=headers,
-                                            verify=verify, proxies=proxies,cookies=cookies, timeout=timeout, impersonate=impersonate)
+                                            verify=verify, proxies=proxies,cookies=cookies,data=payload, params=params, timeout=timeout, impersonate=impersonate)
 
                 
                 status_code = response.status_code
@@ -147,7 +147,7 @@ class MFDevScraper:
                 result.append(item)
         return result
     
-    def generate_csv(self, records:dict, name:str, codex:str='utf-8', folder:str=None):
+    def generate_csv(self, records:dict, name:str, folder:str=None, codex:str='utf-8'):
 
         """
         Generate and save a CSV file from a list of dictionaries.
@@ -182,7 +182,8 @@ class MFDevScraper:
             if folder is None:
                 folder = os.path.dirname(os.path.abspath(__file__))
             os.makedirs(folder, exist_ok=True)
-            path_file = os.path.join(folder, name)
+            file_base, _ = os.path.splitext(name)
+            path_file = os.path.join(folder, f"{file_base}.csv")
             df=pd.DataFrame(records)
             df.to_csv(path_file, index=False, encoding=codex)
 
@@ -222,7 +223,8 @@ class MFDevScraper:
             if folder is None:
                 folder = os.path.dirname(os.path.abspath(__file__))
             os.makedirs(folder, exist_ok=True)
-            path_file = os.path.join(folder, name)
+            file_base, _ = os.path.splitext(name)
+            path_file = os.path.join(folder, f"{file_base}.xlsx")
             df=pd.DataFrame(records)
             df.to_excel(path_file, index=False, engine="openpyxl")
             
