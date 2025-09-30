@@ -9,7 +9,7 @@ A lightweight scraping and data processing toolkit with:
 - CSV/Excel export helpers
 """
 
-__version__ = "0.1.5"
+__version__ = "0.1.6"
 __author__ = "Miguel Fernandez"
 __license__ = "MIT"
 

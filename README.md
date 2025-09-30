@@ -34,40 +34,165 @@ pip install mfdev-scraper
 ```
 
 ---
+---
+---
 
-## Usage
+## Usage - Example
 
-### Basic Example
+### Import
 
 ```python
-from mfdev_scraper_sdk import MFDevScraper
+  from mfdev_scraper_sdk import MFDevScraper
 
-scraper = MFDevScraper()
+  scraper = MFDevScraper()
 
-# Perform a GET request
-response = scraper.request_mfdev(
-    method="GET",
-    url="https://httpbin.org/get"
-)
-print(response.text)
-
-# Clean duplicate records
-records = [
-    {"id": 1, "name": "Alice"},
-    {"id": 1, "name": "Duplicate"},
-    {"id": 2, "name": "Bob"}
-]
-cleaned = scraper.clean_duplicates_dict(records)
-print(cleaned)
-
-# Export to CSV
-csv_path = scraper.generate_csv(cleaned, "output.csv")
-print(f"CSV saved at: {csv_path}")
-
-# Export to Excel
-excel_path = scraper.generate_excel(cleaned, "output.xlsx")
-print(f"Excel saved at: {excel_path}")
 ```
+
+### Use request_mfdev method
+
+```python
+
+  '''
+  Perform a Request
+
+  You can perform a request using the request_mfdev method.
+  This method allows you to customize parameters such as:
+
+  * status_code_accepted → The HTTP status code considered a successful response.
+
+  * max_retries → The maximum number of retry attempts if the request fails.
+
+  * timeout → The time (in seconds) to wait before the request times out.
+
+  Note: If you do not provide these parameters, the method will automatically use the default values.
+
+  '''
+
+  # Perform a GET request
+  response = client.request_mfdev(
+      method="GET",
+      url="https://httpbin.org/get",
+      status_code_accepted=200,   # optional
+      max_retries=3,              # optional
+      timeout=10.0                # optional
+  )
+
+  print("Status Code:", response.status_code)
+  print("Response Body:", response.text)
+
+```
+
+### Use clean_duplicates_dict method
+
+```python
+
+  '''
+  Clean Duplicate Records
+
+  The clean_duplicates_dict method removes duplicate records from a list of dictionaries.
+
+  field → The key used to check for duplicates.
+
+  If not provided, the default value is "id".
+
+  strict → Defines how to handle records missing the specified field.
+
+  Default: True → Raises an error if the field does not exist.
+
+  If set to False, records without the field will simply be ignored.
+
+  '''
+
+  # Example data with duplicates - strict = False
+  records = [
+      {"id": 1, "name": "Alice"},
+      {"id": 2, "name": "Bob"},
+      {"id": 1, "name": "Alice"},   # Duplicate
+      {"id": 3, "name": "Charlie"},
+      {"name": "No ID"}             # Missing field
+  ]
+
+  # Clean duplicates by "id"
+  cleaned = client.clean_duplicates_dict(records, field="id", strict=False)
+
+  print("Cleaned Records:")
+  for item in cleaned:
+      print(item)
+
+  # Output (with strict=False)
+  '''
+  {'id': 1, 'name': 'Alice'}
+  {'id': 2, 'name': 'Bob'}
+  {'id': 3, 'name': 'Charlie'}
+  {'name': 'No ID'}
+
+  '''
+
+  ## Example data with duplicates - strict = true
+
+  records = [
+      {"id": 1, "name": "Alice"},
+      {"name": "No ID"}   # Missing "id"
+  ]
+
+  try:
+      # This will raise an error because "id" is missing in one record
+      cleaned = client.clean_duplicates_dict(records, field="id", strict=True)
+  except DataValidationError as e:
+      print("Error:", e)
+
+  # Output (with strict=True)
+  '''
+  Error: Missing required field 'id' in record
+
+  '''
+
+```
+
+
+### Use generate_csv method
+
+```python
+
+  '''
+  Export to CSV
+
+  To export your data to a CSV file, simply provide the file name without the extension.
+  Optionally, you can also specify a folder where the file will be saved.
+
+  '''
+
+  csv_path = scraper.generate_csv(cleaned, "output")
+  print(f"CSV saved at: {csv_path}")
+
+
+```
+
+
+
+
+
+
+
+
+### Use generate_excel method
+
+```python
+
+  '''
+  Export to Excel
+
+  To export your data to a Excel file, simply provide the file name without the extension.
+  Optionally, you can also specify a folder where the file will be saved.
+
+  '''
+  excel_path = scraper.generate_excel(cleaned, "output", "files")
+  print(f"Excel saved at: {excel_path}")
+
+```
+---
+---
+
 
 ---
 
